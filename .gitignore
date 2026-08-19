@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+.next/
+out/
+build/
+*.tsbuildinfo
+
+# Environment variables & secrets
+.env
+.env*.local
+
+# Turborepo cache
+.turbo/
+
+# Logs & OS junk
+*.log
+.DS_Store
+Thumbs.db
