@@ -1,0 +1,16 @@
+{
+  "name": "IELTSTARS",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "turbo": "^2.10.11"
+  },
+  "packageManager": "pnpm@10.34.1"
+}

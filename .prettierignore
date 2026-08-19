@@ -1,0 +1,8 @@
+node_modules
+.pnpm
+.turbo
+.next
+dist
+build
+.expo
+coverage
