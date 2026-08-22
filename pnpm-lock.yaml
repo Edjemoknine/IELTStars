@@ -20,6 +20,9 @@ importers:
       '@hono/node-server':
         specifier: ^2.1.1
         version: 2.1.1(hono@4.13.3)
+      '@ielts/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@ielts/types':
         specifier: workspace:*
         version: link:../../packages/types

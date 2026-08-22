@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^2.1.1",
+    "@ielts/db": "workspace:*",
     "@ielts/types": "workspace:*",
     "@ielts/validators": "workspace:*",
     "hono": "^4.13.3"
