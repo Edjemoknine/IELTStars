@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TestType {
+  ACADEMIC
+  GENERAL_TRAINING
+}
+
+enum IELTSModule {
+  READING
+  LISTENING
+  WRITING
+  SPEAKING
+}
+
+enum TestStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE_NOT_GIVEN
+  YES_NO_NOT_GIVEN
+  MATCHING
+  SHORT_ANSWER
+  SENTENCE_COMPLETION
+  SUMMARY_COMPLETION
+  NOTE_COMPLETION
+  TABLE_COMPLETION
+  FLOW_CHART_COMPLETION
+  DIAGRAM_LABEL_COMPLETION
+}
+
+model Test {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  type        TestType
+  module      IELTSModule
+  status      TestStatus   @default(DRAFT)
+
+  sections    TestSection[]
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([module, type])
+}
+
+model TestSection {
+  id          String     @id @default(cuid())
+  testId      String
+  title       String
+  description String?
+  order       Int
+
+  test        Test       @relation(fields: [testId], references: [id], onDelete: Cascade)
+  questions   Question[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([testId, order])
+}
+
+model Question {
+  id          String       @id @default(cuid())
+  sectionId   String
+  type        QuestionType
+  question    String
+  explanation String?
+  order       Int
+  points      Int          @default(1)
+
+  section     TestSection  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  options     QuestionOption[]
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@unique([sectionId, order])
+}
+
+model QuestionOption {
+  id          String   @id @default(cuid())
+  questionId  String
+  text        String
+  isCorrect   Boolean  @default(false)
+  order       Int
+
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, order])
+}
