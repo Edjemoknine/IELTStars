@@ -38,6 +38,32 @@ enum QuestionType {
   DIAGRAM_LABEL_COMPLETION
 }
 
+enum SpeakingPart {
+  PART_1
+  PART_2
+  PART_3
+}
+
+enum SpeakingSessionStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  EVALUATING
+  EVALUATED
+  FAILED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+
+  sessions  SpeakingSession[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Test {
   id          String       @id @default(cuid())
   title       String
@@ -47,6 +73,7 @@ model Test {
   status      TestStatus   @default(DRAFT)
 
   sections    TestSection[]
+  sessions    SpeakingSession[]
 
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
@@ -80,7 +107,6 @@ model Question {
   points      Int          @default(1)
 
   section     TestSection  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  options     QuestionOption[]
 
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
@@ -88,14 +114,65 @@ model Question {
   @@unique([sectionId, order])
 }
 
-model QuestionOption {
-  id          String   @id @default(cuid())
-  questionId  String
-  text        String
-  isCorrect   Boolean  @default(false)
+model SpeakingSession {
+  id          String                @id @default(cuid())
+  userId      String
+  testId      String?
+
+  status      SpeakingSessionStatus @default(NOT_STARTED)
+
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  test        Test?                 @relation(fields: [testId], references: [id], onDelete: SetNull)
+
+  turns       SpeakingTurn[]
+  evaluation  SpeakingEvaluation?
+
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  @@index([userId])
+  @@index([userId, status])
+}
+
+model SpeakingTurn {
+  id          String        @id @default(cuid())
+  sessionId   String
+
+  part        SpeakingPart
   order       Int
 
-  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question    String
+  answer      String?
+  audioUrl    String?
 
-  @@unique([questionId, order])
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  session     SpeakingSession @relation(fields: [sessionId],references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, order])
+  @@index([sessionId, part])
+}
+
+model SpeakingEvaluation {
+  id          String @id @default(cuid())
+  sessionId   String @unique
+
+  fluencyCoherence       Float
+  lexicalResource        Float
+  grammaticalAccuracy    Float
+  pronunciation          Float
+  overall                 Float
+
+  summary                 String?
+  strengths               Json?
+  weaknesses              Json?
+  recommendations         Json?
+
+  evaluatedAt             DateTime @default(now())
+
+  session                 SpeakingSession @relation(fields: [sessionId],references: [id],onDelete: Cascade)
 }
