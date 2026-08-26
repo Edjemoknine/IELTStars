@@ -81,8 +81,8 @@ Create `pnpm-workspace.yaml`:
 
 ```yaml
 packages:
-  - "apps/*"
-  - "packages/*"
+  - 'apps/*'
+  - 'packages/*'
 ```
 
 The repository now knows that everything under `apps` and `packages` is a workspace.
@@ -113,16 +113,6 @@ Use the pnpm version actually installed in the project.
 pnpm create next-app apps/web
 ```
 
-Recommended options:
-
-```text
-TypeScript: Yes
-ESLint: Yes
-Tailwind CSS: Yes
-src/: Yes
-App Router: Yes
-```
-
 Run only the web app:
 
 ```bash
@@ -135,24 +125,6 @@ For example:
 
 ```bash
 pnpm --filter web add axios
-```
-
-This puts `axios` in:
-
-```text
-apps/web/package.json
-```
-
-Use it:
-
-```ts
-import axios from "axios";
-
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-});
-
-export default api;
 ```
 
 Rule:
@@ -174,12 +146,12 @@ pnpm create hono apps/api
 A simple Hono server:
 
 ```ts
-import { Hono } from "hono";
+import { Hono } from 'hono';
 
 const app = new Hono();
 
-app.get("/health", (c) => {
-  return c.json({ status: "ok" });
+app.get('/health', (c) => {
+  return c.json({ status: 'ok' });
 });
 
 export default app;
@@ -208,12 +180,6 @@ or another API-only dependency:
 pnpm --filter api add <package>
 ```
 
-It belongs to:
-
-```text
-apps/api/package.json
-```
-
 ## 10. Create the Expo mobile app
 
 ```bash
@@ -238,18 +204,6 @@ For Expo-compatible packages, use Expo's installer:
 
 ```bash
 pnpm --filter mobile exec expo install expo-secure-store
-```
-
-For a normal package:
-
-```bash
-pnpm --filter mobile add axios
-```
-
-Rule:
-
-```text
-Mobile-only dependency → install in mobile
 ```
 
 ## 12. Create a shared validators package
@@ -290,7 +244,7 @@ Do not install it only at the root.
 `packages/validators/src/index.ts`:
 
 ```ts
-import { z } from "zod";
+import { z } from 'zod';
 
 export const loginSchema = z.object({
   email: z.string().email(),
@@ -311,11 +265,11 @@ pnpm --filter web add @repo/validators@workspace:*
 Use it:
 
 ```ts
-import { loginSchema } from "@repo/validators";
+import { loginSchema } from '@repo/validators';
 
 const result = loginSchema.safeParse({
-  email: "user@example.com",
-  password: "12345678",
+  email: 'user@example.com',
+  password: '12345678',
 });
 ```
 
@@ -328,17 +282,17 @@ pnpm --filter api add @repo/validators@workspace:*
 Use it:
 
 ```ts
-import { Hono } from "hono";
-import { loginSchema } from "@repo/validators";
+import { Hono } from 'hono';
+import { loginSchema } from '@repo/validators';
 
 const app = new Hono();
 
-app.post("/auth/login", async (c) => {
+app.post('/auth/login', async (c) => {
   const body = await c.req.json();
   const result = loginSchema.safeParse(body);
 
   if (!result.success) {
-    return c.json({ error: "Invalid request" }, 400);
+    return c.json({ error: 'Invalid request' }, 400);
   }
 
   return c.json({
@@ -359,7 +313,7 @@ pnpm --filter mobile add @repo/validators@workspace:*
 Use it:
 
 ```ts
-import { loginSchema } from "@repo/validators";
+import { loginSchema } from '@repo/validators';
 
 const result = loginSchema.safeParse({
   email,
@@ -429,53 +383,8 @@ pnpm --filter mobile add @repo/types@workspace:*
 Use:
 
 ```ts
-import type { Course } from "@repo/types";
+import type { Course } from '@repo/types';
 ```
-
-## 20. Shared UI package
-
-Create:
-
-```text
-packages/ui/
-├── src/
-├── package.json
-└── tsconfig.json
-```
-
-For web:
-
-```tsx
-export function Button() {
-  return <button>Continue</button>;
-}
-```
-
-Then:
-
-```ts
-import { Button } from "@repo/ui";
-```
-
-### Important
-
-Do not assume a DOM component works in React Native.
-
-Web:
-
-```tsx
-<button>Continue</button>
-```
-
-React Native:
-
-```tsx
-<Pressable>
-  <Text>Continue</Text>
-</Pressable>
-```
-
-For a serious cross-platform UI system, deliberately design the package for both platforms or keep separate web/native UI packages.
 
 ## 21. Shared package vs framework-specific dependency
 
@@ -518,28 +427,22 @@ pnpm --filter @repo/validators add zod
 `packages/validators/src/writing.ts`:
 
 ```ts
-import { z } from "zod";
+import { z } from 'zod';
 
 export const writingSubmissionSchema = z.object({
-  taskType: z.enum(["task1", "task2"]),
+  taskType: z.enum(['task1', 'task2']),
   answer: z.string().min(1),
 });
 
-export type WritingSubmission = z.infer<
-  typeof writingSubmissionSchema
->;
+export type WritingSubmission = z.infer<typeof writingSubmissionSchema>;
 ```
 
 Export it from `index.ts`:
 
 ```ts
-export {
-  writingSubmissionSchema,
-} from "./writing.js";
+export { writingSubmissionSchema } from './writing.js';
 
-export type {
-  WritingSubmission,
-} from "./writing.js";
+export type { WritingSubmission } from './writing.js';
 ```
 
 Now all clients use the same contract:
@@ -560,10 +463,7 @@ Expo ────────┘
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        ".next/**",
-        "dist/**"
-      ]
+      "outputs": [".next/**", "dist/**"]
     },
     "dev": {
       "cache": false,
@@ -695,82 +595,4 @@ Run a command in a workspace:
 
 ```bash
 pnpm --filter web <command>
-```
-
-## 29. Complete workflow
-
-```text
-1. Install pnpm
-        ↓
-2. Create Turborepo
-        ↓
-3. Configure pnpm-workspace.yaml
-        ↓
-4. Create Next.js app
-        ↓
-5. Create Hono API
-        ↓
-6. Create Expo mobile app
-        ↓
-7. Create packages/
-        ↓
-8. Create @repo/validators
-        ↓
-9. Install Zod in validators
-        ↓
-10. Create shared schemas
-        ↓
-11. Link validators to Web
-        ↓
-12. Link validators to API
-        ↓
-13. Link validators to Mobile
-        ↓
-14. Create @repo/types
-        ↓
-15. Link shared types
-        ↓
-16. Add framework-specific libraries
-        ↓
-17. Configure Turborepo tasks
-        ↓
-18. Run dev/build/typecheck
-```
-
-## 30. Final rule
-
-```text
-Framework-specific library
-        ↓
-Install it in that app
-
-Shared code
-        ↓
-Create a package
-
-Shared package
-        ↓
-Link with @repo/package@workspace:*
-```
-
-Final IELTS platform:
-
-```text
-ielts-platform/
-│
-├── apps/
-│   ├── web/             → Next.js
-│   ├── api/             → Hono
-│   └── mobile/          → React Native + Expo
-│
-├── packages/
-│   ├── validators/      → Zod
-│   ├── types/           → Shared TypeScript types
-│   ├── ui/              → Shared UI where appropriate
-│   └── config/          → Shared configuration
-│
-├── package.json
-├── pnpm-workspace.yaml
-├── turbo.json
-└── pnpm-lock.yaml
 ```
